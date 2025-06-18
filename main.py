@@ -1,3 +1,5 @@
+from summary import summary_by_category
+from visualizer import show_spending_chart
 from tracker import init_csv, add_expense, view_expenses, summary_by_category
 from datetime import datetime
 def main():
@@ -8,7 +10,8 @@ def main():
         print("1. Add Expenses")
         print("2. View All Expenses")
         print("3. View Summary by Category")
-        print("4. exit")
+        print("4. view spending chart: ")
+        print("5. exit")
         choice = input("Choose an option: ")
         
         # choosing 1 to 4 for the adding, viewing and all expenses
@@ -50,14 +53,28 @@ def main():
             # Valid expenses are saved
             add_expense(date, category, amount, description)
             print("Expense added.")
+
+        # choice 2
         elif choice == "2":
             df = view_expenses()
             print(df)
+
+        # choice 3
         elif choice == "3":
             summary = summary_by_category()
             print("\nSummary by category")
             print(summary)
+
+        #choice 4
         elif choice == "4":
+            summary = summary_by_category()
+            if summary.empty:
+                print("No data to display")
+            else:
+                show_spending_chart(summary)
+            
+        elif choice == "5":
+            print("Thank you for using the Expense Tracker.")
             break
         else:
             print("Invalid choice. Try again.")
