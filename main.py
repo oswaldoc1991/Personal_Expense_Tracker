@@ -1,5 +1,5 @@
-from summary import summary_by_category
-from visualizer import show_spending_chart
+from summary import summary_by_category, summary_by_month
+from visualizer import show_spending_chart, show_monthly_trend_chart
 from tracker import init_csv, add_expense, view_expenses, summary_by_category
 from datetime import datetime
 def main():
@@ -10,8 +10,10 @@ def main():
         print("1. Add Expenses")
         print("2. View All Expenses")
         print("3. View Summary by Category")
-        print("4. view spending chart: ")
-        print("5. exit")
+        print("4. View Spending Chart")
+        print("5. View Monthly Summary")
+        print("6. Exit")
+
         choice = input("Choose an option: ")
         
         # choosing 1 to 4 for the adding, viewing and all expenses
@@ -72,8 +74,21 @@ def main():
                 print("No data to display")
             else:
                 show_spending_chart(summary)
+        
+        # choice 5
+        elif choice =="5":
+            monthly = summary_by_month()
+            if monthly.empty:
+                print("no data to summariez.")
+            else:
+                print("\nMonthly Spending Summary: ")
+                print(monthly)
+
+                view_chart = input("would you like to see a monthly trend chart? (y/n)").strip().lower()
+                if view_chart == "y":
+                    show_monthly_trend_chart(monthly)
             
-        elif choice == "5":
+        elif choice == "6":
             print("Thank you for using the Expense Tracker.")
             break
         else:
