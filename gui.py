@@ -1,10 +1,6 @@
 import tkinter as tk
-import csv
-from tkinter import ttk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from tracker import add_expense, view_expenses
-from summary import summary_by_category
-
 
 def add_expense_gui():
     date = date_entry.get()
@@ -16,6 +12,7 @@ def add_expense_gui():
         add_expense(date, category, float(amount), description)
         messagebox.showinfo("success", "expense added!")
         clear_entries()
+        load_expenses()
     except Exception as e:
         messagebox.showerror("Error", str(e))
 
@@ -26,14 +23,12 @@ def clear_entries():
     description_entry.delete(0, tk.END)
 
 def load_expenses():
-    tree.delete(*tree.get_children())
-    try:
-        with open("expenses.csv", newline="") as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                tree.insert("", "end", values=(row["date"], row["category"], row["amount"], row["description"]))
-    except FileNotFoundError:
-        pass
+    for item in tree.get_children():
+        tree.delete(item)
+    
+    df = view_expenses()
+    for _, row in df.iterrows():
+        tree.insert("", "end", values=(row["date"], row["category"], row["amount"], row["description"]))
 
 # for the main window
 root = tk.Tk()
@@ -62,10 +57,13 @@ description_entry.grid(row=3, column=1)
 tk.Button(root, text="Add Expense", command=add_expense_gui).grid(row=4, column=0, columnspan=2, pady=10)
 
 # this will show the expenses from table
-columns = ("Date", "Category", "Amount", "Description_entry")
+columns = ("Date", "Category", "Amount", "Description")
 tree = ttk.Treeview(root, columns=columns, show="headings")
 for col in columns:
     tree.heading(col, text=col)
+    tree.column(col, width=120)
+
+tree.grid(row=5, column=0, columnspan=2, pady=10)
 
 # loading data from start up
 load_expenses()
