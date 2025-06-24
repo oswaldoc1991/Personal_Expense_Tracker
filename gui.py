@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog
-from tkinter import messagebox, ttk
+import matplotlib.pyplot as plt #go to line 51
+from tkinter import messagebox, ttk, filedialog
+import pandas as pd
 from tracker import add_expense, view_expenses
 
 def add_expense_gui():
@@ -46,6 +48,59 @@ def export_to_cvs():
         except Exception as e:
             messagebox.showerror("Export Failed", str(e))
 
+def show_category_chart():
+    df= view_expenses()
+    if df.empty:
+        messagebox.showwarning("No Data", "No data available for chart.")
+        return
+    
+    summary = df.groupby("category")["amount"].sum()
+    
+    fig, ax = plt.subplots()
+    summary.plot.pie(ax=ax, autopct="%1.1f%%", startangle=90)
+    ax.set_title("Spending by Category")
+    ax.set_ylabel("")
+    plt.tight_layout()
+
+    # asking to save graph
+    save = messagebox.askyesno("Save Chart", "would you like to save this chart as an image?")
+    if save:
+        path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("PNG Image", "*.png")])
+        if path:
+            fig.savefig(path)
+            messagebox.showinfo("Saved", f"Chart saved to:\n{path}")
+        plt.show()
+
+def show_monthly_chart():
+    df = view_expenses()
+    if df.empty:
+        messagebox.showwarning("No Data", "No data available for chart.")
+        return
+    df["date"] = pd.to_datetime(df["date"], format="mixed", errors="coerce")
+    df = df.dropna(subset=["date"])  # Remove rows where date couldn't be parsed
+    df["month"] = df["date"].dt.to_period("M").astype(str)
+    summary = df.groupby("month")["amount"].sum().reset_index()
+
+
+    fig, ax = plt.subplots()
+    ax.bar(summary["month"], summary["amount"])
+    ax.set_title("Monthly Spending Trend")
+    ax.set_xlabel("Month")
+    ax.set_ylabel("Amount")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    # asked to save 
+    save = messagebox.askyesno("Save Chart", "would you like to save this chart as an image?")
+    if save:
+        path = filedialog.asksaveasfile(defaultextension=".png", filetypes=[("PNG Image", "*.png")])
+        if path:
+            fig.savefig(path)
+            messagebox.showinfo("Saved", f"Chart saved to:\n{path}")
+        plt.show()
+
+# continue here when making the charts for the expense tracker
+
 #--------------Main frame-----------------
 # for the main window
 root = tk.Tk()
@@ -79,6 +134,8 @@ description_entry.grid(row=3, column=1, padx=5, pady=5)
 # buttons for the gui
 tk.Button(input_frame, text="Add Expense", command=add_expense_gui).grid(row=4, column=0, columnspan=2, pady=10)
 tk.Button(input_frame, text="Export to CSV", command=export_to_cvs).grid(row=5, column=0, columnspan=2, pady=5)
+tk.Button(input_frame, text="Category Chart", command=show_category_chart).grid(row=6, column=0, columnspan=2, pady=5)
+tk.Button(input_frame, text="Monthly Chart", command=show_monthly_chart).grid(row=7, column=0, columnspan=2, pady=5)
 
 #--------------table frame-----------------
 table_frame = tk.Frame(root, padx=10, pady=10)
