@@ -3,13 +3,21 @@ from tkinter import filedialog
 import matplotlib.pyplot as plt #go to line 51
 from tkinter import messagebox, ttk, filedialog
 import pandas as pd
-from tracker import add_expense, view_expenses
+from tracker import add_expense, view_expenses, init_csv, reset_csv
 
+#------------- Global Styling -----------
+BG_COLOR = "#f4f4f4"
+FONT = ("Segoe UI", 10)
+BUTTON_STYLE = {"bg": "#4CAF50", "fg": "white", "font": FONT, "padx": 10, "pady": 5, "relief": "groove"}
+
+# ------------ GUI Function -------------
 def add_expense_gui():
     date = date_entry.get()
     category = category_entry.get()
     amount = amount_entry.get()
     description = description_entry.get()
+
+    print(f"Adding: {date}, {category}, {amount}, {description}")  # Debugging output
 
     try:
         add_expense(date, category, float(amount), description)
@@ -18,6 +26,7 @@ def add_expense_gui():
         load_expenses()
     except Exception as e:
         messagebox.showerror("Error", str(e))
+
 
 def clear_entries():
     date_entry.delete(0, tk.END)
@@ -99,6 +108,21 @@ def show_monthly_chart():
             messagebox.showinfo("Saved", f"Chart saved to:\n{path}")
         plt.show()
 
+
+#--------- loading current expenses------------
+def load_expenses():
+    for item in tree.get_children():
+        tree.delete(item)
+    
+    df = view_expenses()
+
+    if df.empty:
+        print("NO expenses to lead.") # this will debug the line error of the csv
+        return
+    
+    for _, row in df.iterrows():
+        tree.insert("", "end", values=(row["date"], row["category"], row["amount"], row["description"]))
+        
 # continue here when making the charts for the expense tracker
 
 #--------------Main frame-----------------
@@ -106,6 +130,7 @@ def show_monthly_chart():
 root = tk.Tk()
 root.title("Expense Tracker")
 root.geometry("600x500")
+root.configure(bg=BG_COLOR)
 
 #--------------input frame-----------------
 # input frame 
@@ -113,7 +138,7 @@ input_frame = tk.Frame(root, padx=10, pady=10)
 input_frame.pack(fill="x")
 
 # for both labels and for entry
-tk.Label(input_frame, text="Date (MM-DD-YYYY): ").grid(row=0, column=0, sticky="w")
+tk.Label(input_frame, text="Date (MM-DD-YYYY): ", font=FONT, bg=BG_COLOR).grid(row=0, column=0, sticky="w")
 date_entry = tk.Entry(input_frame)
 date_entry.grid(row=0, column=1, padx=5, pady=5)
 
@@ -130,6 +155,9 @@ amount_entry.grid(row=2, column=1, padx=5, pady=5)
 tk.Label(input_frame, text="Description").grid(row=3, column=0, sticky="w")
 description_entry = tk.Entry(input_frame)
 description_entry.grid(row=3, column=1, padx=5, pady=5)
+
+button_frame = tk.Frame(root, bg=BG_COLOR)
+button_frame.pack(pady=5)
 
 # buttons for the gui
 tk.Button(input_frame, text="Add Expense", command=add_expense_gui).grid(row=4, column=0, columnspan=2, pady=10)
@@ -151,7 +179,8 @@ for col in columns:
 tree.pack(fill="both", expand=True)
 
 
-# loading data from start up
+# ----------- loading initial data------------
 load_expenses()
 
+#------------ launching app ------------------
 root.mainloop()
