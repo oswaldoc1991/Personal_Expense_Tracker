@@ -7,6 +7,20 @@ from tkinter import messagebox
 CSV_FILE ="expenses.csv"
 FIELDS = ["date", "category", "amount", "description"]
 
+def get_user_csv(username):
+    return f"express_{username}.csv"
+
+def add_expense(username, date, category, amount, description):
+    csv_file = get_user_csv(username) 
+    csv_file = get_user_csv(date)
+    csv_file = get_user_csv(category)
+    csv_file = get_user_csv(amount)
+    csv_file = get_user_csv(description)
+
+
+def view_expenses(username):
+    csv_file = get_user_csv(username)
+
 def init_csv():
     with open(CSV_FILE, mode="w", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=FIELDS)
