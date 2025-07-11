@@ -4,6 +4,15 @@ import matplotlib.pyplot as plt #go to line 51
 from tkinter import messagebox, ttk, filedialog
 import pandas as pd
 from tracker import add_expense, view_expenses, init_csv, reset_csv
+from login_window import login_windows
+
+# this will prompt login
+username = login_windows()
+if not username:
+    exit()
+
+#this will initalize user-specific CSV
+init_csv(username)
 
 #------------- Global Styling -----------
 BG_COLOR = "#f4f4f4"
@@ -38,7 +47,10 @@ def load_expenses():
     for item in tree.get_children():
         tree.delete(item)
     
-    df = view_expenses()
+    df = view_expenses(username)
+    if df.empty:
+        return
+    
     for _, row in df.iterrows():
         tree.insert("", "end", values=(row["date"], row["category"], row["amount"], row["description"]))
 

@@ -7,26 +7,18 @@ from tkinter import messagebox
 CSV_FILE ="expenses.csv"
 FIELDS = ["date", "category", "amount", "description"]
 
-def get_user_csv(username):
-    return f"express_{username}.csv"
+def get_csv_file(username):
+    return f"expenses_{username}.csv"
+
+def init_csv(username):
+    csv_file = get_csv_file(username)
+    if not os.path.exists(csv_file):
+        with open(CSV_FILE, mode="w", newline="") as file:
+            writer = csv.DictWriter(file, fieldnames=FIELDS)
+            writer.writeheader()
 
 def add_expense(username, date, category, amount, description):
-    csv_file = get_user_csv(username) 
-    csv_file = get_user_csv(date)
-    csv_file = get_user_csv(category)
-    csv_file = get_user_csv(amount)
-    csv_file = get_user_csv(description)
-
-
-def view_expenses(username):
-    csv_file = get_user_csv(username)
-
-def init_csv():
-    with open(CSV_FILE, mode="w", newline="") as file:
-        writer = csv.DictWriter(file, fieldnames=FIELDS)
-        writer.writeheader()
-
-def add_expense(date, category, amount, description):
+    csv_file = get_csv_file(username)
     with open(CSV_FILE, mode="a", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=FIELDS, quoting=csv.QUOTE_NONNUMERIC)
         writer.writerow({
@@ -36,7 +28,9 @@ def add_expense(date, category, amount, description):
             "description": description
         })
 
-def view_expenses():
+def view_expenses(username):
+    csv_file = get_csv_file(username)
+
     if not os.path.exists(CSV_FILE):
         return pd.DataFrame(columns=FIELDS)
 
@@ -66,13 +60,14 @@ def view_expenses():
             messagebox.showerror("Error", f"Still failed to read cleaned CSV:\n{e}")
             return pd.DataFrame(columns=FIELDS)
 
-def summary_by_category():
-    df =view_expenses()
+def summary_by_category(username):
+    df = view_expenses(username)
     if df.empty:
         return pd.DataFrame(columns=["category", "amount"])
     return df.groupby("category")["amount"].sum().reset_index()
 
-def reset_csv():
+def reset_csv(username):
+    csv_file = get_csv_file(username)
     with open(CSV_FILE, "w", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=FIELDS)
         writer.writeheader()
