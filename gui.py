@@ -29,7 +29,7 @@ def add_expense_gui():
     print(f"Adding: {date}, {category}, {amount}, {description}")  # Debugging output
 
     try:
-        add_expense(date, category, float(amount), description)
+        add_expense(username, date, category, float(amount), description)
         messagebox.showinfo("Success", "Expense added!")
         clear_entries()
         load_expenses()
@@ -55,7 +55,7 @@ def load_expenses():
         tree.insert("", "end", values=(row["date"], row["category"], row["amount"], row["description"]))
 
 def export_to_cvs():
-    df = view_expenses()
+    df = view_expenses(username)
     if df.empty:
         messagebox.showwarning("No Data", "There are no expenses to export.")
         return
@@ -70,7 +70,7 @@ def export_to_cvs():
             messagebox.showerror("Export Failed", str(e))
 
 def show_category_chart():
-    df= view_expenses()
+    df= view_expenses(username)
     if df.empty:
         messagebox.showwarning("No Data", "No data available for chart.")
         return
@@ -93,7 +93,7 @@ def show_category_chart():
         plt.show()
 
 def show_monthly_chart():
-    df = view_expenses()
+    df = view_expenses(username)
     if df.empty:
         messagebox.showwarning("No Data", "No data available for chart.")
         return
@@ -126,7 +126,7 @@ def load_expenses():
     for item in tree.get_children():
         tree.delete(item)
     
-    df = view_expenses()
+    df = view_expenses(username)
 
     if df.empty:
         print("NO expenses to lead.") # this will debug the line error of the csv
